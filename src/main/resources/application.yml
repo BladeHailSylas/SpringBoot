@@ -3,8 +3,8 @@ spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mariadb://localhost:3306/bbs_db
-    username: bbs_user
-    password: your_password
+    username: helloagain
+    password: helloagain
 
   jpa:
     hibernate:

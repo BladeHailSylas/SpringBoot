@@ -29,7 +29,7 @@ public class CommentController {
     @PatchMapping("/{id}/hide")
     public String hide(@PathVariable Long id) {
         return commentService.hideComment(id)
-                ? "✅ 댓글 숨김 처리 완료"
+                ? "✅ 댓글이 삭제되었습니다."
                 : "❌ 댓글을 찾을 수 없습니다.";
     }
 }

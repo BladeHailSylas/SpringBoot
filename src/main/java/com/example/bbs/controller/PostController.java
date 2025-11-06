@@ -50,7 +50,7 @@ public class PostController {
         return ResponseEntity.ok(saved);
     }
 
-    @PutMapping("/{id}/edit")
+    @PutMapping("/{id}")
     public ResponseEntity<?> updatePost(@PathVariable Long id, @Valid @RequestBody PostRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();

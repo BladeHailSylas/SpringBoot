@@ -1,30 +1,29 @@
 package com.example.bbs.service;
 
 import com.example.bbs.entity.Post;
-import com.example.bbs.entity.UploadedFiles;
+import com.example.bbs.entity.Media;
 import com.example.bbs.repository.PostRepository;
-import com.example.bbs.repository.UploadedFilesRepository;
+import com.example.bbs.repository.MediaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
 import java.util.UUID;
 
 @Service
-public class UploadedFilesService {
+public class MediaService {
 
-    private final UploadedFilesRepository uploadedFilesRepository;
+    private final MediaRepository mediaRepository;
     private final PostRepository postRepository;
 
-    public UploadedFilesService(UploadedFilesRepository uploadedFilesRepository, PostRepository postRepository) {
-        this.uploadedFilesRepository = uploadedFilesRepository;
+    public MediaService(MediaRepository mediaRepository, PostRepository postRepository) {
+        this.mediaRepository = mediaRepository;
         this.postRepository = postRepository;
     }
 
-    public UploadedFiles saveFile(Long postId, MultipartFile file) throws IOException {
+    public Media saveFile(Long postId, MultipartFile file) throws IOException {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
@@ -35,25 +34,25 @@ public class UploadedFilesService {
         Path filePath = Path.of(uploadDir, storedName);
         java.nio.file.Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        UploadedFiles entity = new UploadedFiles();
+        Media entity = new Media();
         entity.setPost(post);
         entity.setOriginalName(file.getOriginalFilename());
         entity.setStoredName(storedName);
         entity.setFilePath(filePath.toString());
         entity.setSize(file.getSize());
-        return uploadedFilesRepository.save(entity);
+        return mediaRepository.save(entity);
     }
 
-    public List<UploadedFiles> getFilesByPost(Long postId) {
+    public List<Media> getFilesByPost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
-        return uploadedFilesRepository.findByPost(post);
+        return mediaRepository.findByPost(post);
     }
 
     public void deleteFile(Long fileId) throws IOException {
-        UploadedFiles file = uploadedFilesRepository.findById(fileId)
+        Media file = mediaRepository.findById(fileId)
                 .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다."));
         java.nio.file.Files.deleteIfExists(Path.of(file.getFilePath()));
-        uploadedFilesRepository.delete(file);
+        mediaRepository.delete(file);
     }
 }

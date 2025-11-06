@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "files")
-public class UploadedFiles {
+public class Media {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,10 +32,10 @@ public class UploadedFiles {
     private Post post;
 
     // 기본 생성자
-    public UploadedFiles() {}
+    public Media() {}
 
     // 생성자
-    public UploadedFiles(Post post, String originalName, String storedName, String filePath, long size) {
+    public Media(Post post, String originalName, String storedName, String filePath, long size) {
         this.post = post;
         this.originalName = originalName;
         this.storedName = storedName;

@@ -1,6 +1,6 @@
 package com.example.bbs.dto;
 
-import com.example.bbs.entity.Comment;
+import com.example.bbs.entity.Comments;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,15 +26,15 @@ public class CommentResponse {
     }
 
     // ✅ Comment → CommentResponse 변환 (재귀 포함)
-    public static CommentResponse from(Comment comment) {
+    public static CommentResponse from(Comments comments) {
         return new CommentResponse(
-                comment.getId(),
-                comment.getAuthor(),
-                comment.getContent(),
-                comment.getCreatedAt(),
-                comment.getIpAddress(),
-                comment.getReplies() != null
-                        ? comment.getReplies().stream()
+                comments.getId(),
+                comments.getAuthor(),
+                comments.getContent(),
+                comments.getCreatedAt(),
+                comments.getIpAddress(),
+                comments.getReplies() != null
+                        ? comments.getReplies().stream()
                         .map(CommentResponse::from)
                         .collect(Collectors.toList())
                         : List.of()

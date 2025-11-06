@@ -1,14 +1,14 @@
 package com.example.bbs.repository;
 
-import com.example.bbs.entity.Comment;
+import com.example.bbs.entity.Comments;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
-public interface CommentRepository extends JpaRepository<Comment, Long> {
+public interface CommentRepository extends JpaRepository<Comments, Long> {
 
     // 루트 댓글만 (parentComment == null)
-    List<Comment> findByPostIdAndParentCommentIsNullOrderByCreatedAtAsc(Long postId);
+    List<Comments> findByPostIdAndParentCommentIsNullOrderByCreatedAtAsc(Long postId);
 
     // 특정 댓글의 자식 댓글 조회
-    List<Comment> findByParentCommentIdOrderByCreatedAtAsc(Long parentId);
+    List<Comments> findByParentCommentIdOrderByCreatedAtAsc(Long parentId);
 }

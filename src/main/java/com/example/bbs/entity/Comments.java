@@ -1,6 +1,5 @@
 package com.example.bbs.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,7 +7,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "comments")
-public class Comment {
+public class Comments {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,10 +19,10 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
-    private Comment parentComment;  // ✅ null이면 루트 댓글
+    private Comments parentComments;  // ✅ null이면 루트 댓글
 
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> replies = new ArrayList<>();
+    @OneToMany(mappedBy = "parentComments", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comments> replies = new ArrayList<>();
 
     @Column(nullable = false, length = 100)
     private String author;
@@ -37,10 +36,10 @@ public class Comment {
     @Column(length = 45)
     private String ipAddress;
 
-    public Comment() {}
+    public Comments() {}
 
     // 일반 댓글 생성자
-    public Comment(Post post, String author, String content, String ipAddress) {
+    public Comments(Post post, String author, String content, String ipAddress) {
         this.post = post;
         this.author = author;
         this.content = content;
@@ -48,9 +47,9 @@ public class Comment {
     }
 
     // 대댓글 생성자
-    public Comment(Post post, Comment parent, String author, String content, String ipAddress) {
+    public Comments(Post post, Comments parent, String author, String content, String ipAddress) {
         this.post = post;
-        this.parentComment = parent;
+        this.parentComments = parent;
         this.author = author;
         this.content = content;
         this.ipAddress = ipAddress;
@@ -59,15 +58,15 @@ public class Comment {
     // Getter/Setter
     public Long getId() { return id; }
     public Post getPost() { return post; }
-    public Comment getParentComment() { return parentComment; }
-    public List<Comment> getReplies() { return replies; }
+    public Comments getParentComment() { return parentComments; }
+    public List<Comments> getReplies() { return replies; }
     public String getAuthor() { return author; }
     public String getContent() { return content; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public String getIpAddress() { return ipAddress; }
 
     public void setPost(Post post) { this.post = post; }
-    public void setParentComment(Comment parent) { this.parentComment = parent; }
+    public void setParentComment(Comments parent) { this.parentComments = parent; }
     public void setAuthor(String author) { this.author = author; }
     public void setContent(String content) { this.content = content; }
     public void setIpAddress(String ip) { this.ipAddress = ip; }

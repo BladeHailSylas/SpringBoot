@@ -2,7 +2,7 @@ package com.example.bbs.controller;
 
 import com.example.bbs.dto.CommentRequest;
 import com.example.bbs.dto.CommentResponse;
-import com.example.bbs.entity.Comment;
+import com.example.bbs.entity.Comments;
 import com.example.bbs.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -32,7 +32,7 @@ public class CommentController {
 
     // ✅ 특정 댓글의 대댓글 목록
     @GetMapping("/{parentId}/replies")
-    public List<Comment> getReplies(@PathVariable Long parentId) {
+    public List<Comments> getReplies(@PathVariable Long parentId) {
         return commentService.getReplies(parentId);
     }
 
@@ -46,7 +46,7 @@ public class CommentController {
         String ip = Optional.ofNullable(req.getHeader("X-Forwarded-For"))
                 .orElse(req.getRemoteAddr());
 
-        Comment saved = commentService.addComment(postId, request.getAuthor(), request.getContent(), ip);
+        Comments saved = commentService.addComment(postId, request.getAuthor(), request.getContent(), ip);
         return ResponseEntity.ok(CommentResponse.from(saved));
     }
 
@@ -59,7 +59,7 @@ public class CommentController {
         String ip = Optional.ofNullable(req.getHeader("X-Forwarded-For"))
                 .orElse(req.getRemoteAddr());
 
-        Comment saved = commentService.addReply(postId, parentId,
+        Comments saved = commentService.addReply(postId, parentId,
                 request.getAuthor(),
                 request.getContent(),
                 ip);

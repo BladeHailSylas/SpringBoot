@@ -50,7 +50,7 @@ public class PostController {
         return ResponseEntity.ok(saved);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/edit")
     public ResponseEntity<?> updatePost(@PathVariable Long id, @Valid @RequestBody PostRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
@@ -64,7 +64,11 @@ public class PostController {
                 .<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> hidePost(@PathVariable Long id) {
+        boolean result = postService.hidePost(id);
+        return result ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
     @PatchMapping("/{id}/hide")
     public String hide(@PathVariable Long id) {
         return postService.hidePost(id) ? "✅ 게시글이 삭제되었습니다." : "❌ 게시글을 찾을 수 없습니다.";

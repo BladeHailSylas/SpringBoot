@@ -29,25 +29,38 @@ public class CommentService {
     }
 
     // 댓글 추가 (일반)
-    public Comment addComment(Long postId, Comment comment) {
+    public Comment addComment(Long postId, String author, String content, String ipAddress) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+
+        Comment comment = new Comment();
         comment.setPost(post);
+        comment.setAuthor(author);
+        comment.setContent(content);
+        comment.setIpAddress(ipAddress);
+
         return commentRepository.save(comment);
     }
 
     // 대댓글 추가
-    public Comment addReply(Long postId, Long parentId, Comment reply) {
+    public Comment addReply(Long postId, Long parentId, String author, String content, String ipAddress) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
         Comment parent = commentRepository.findById(parentId)
                 .orElseThrow(() -> new IllegalArgumentException("부모 댓글을 찾을 수 없습니다."));
+
+        Comment reply = new Comment();
         reply.setPost(post);
         reply.setParentComment(parent);
+        reply.setAuthor(author);
+        reply.setContent(content);
+        reply.setIpAddress(ipAddress);
+
         return commentRepository.save(reply);
     }
 
     public void deleteComment(Long id) {
         commentRepository.deleteById(id);
     }
+
 }

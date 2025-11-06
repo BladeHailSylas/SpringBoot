@@ -1,5 +1,6 @@
 package com.example.bbs.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,6 +34,7 @@ public class Post {
     private String ipAddress;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private final List<Comment> comments = new ArrayList<>();
 
 

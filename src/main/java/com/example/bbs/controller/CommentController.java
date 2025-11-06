@@ -1,8 +1,11 @@
 package com.example.bbs.controller;
 
+import com.example.bbs.dto.CommentRequest;
+import com.example.bbs.dto.CommentResponse;
 import com.example.bbs.entity.Comment;
 import com.example.bbs.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -20,8 +23,11 @@ public class CommentController {
 
     // ✅ 루트 댓글 목록
     @GetMapping
-    public List<Comment> getRootComments(@PathVariable Long postId) {
-        return commentService.getRootComments(postId);
+    public List<CommentResponse> getRootComments(@PathVariable Long postId) {
+        return commentService.getRootComments(postId)
+                .stream()
+                .map(CommentResponse::from)
+                .toList();
     }
 
     // ✅ 특정 댓글의 대댓글 목록
@@ -32,25 +38,33 @@ public class CommentController {
 
     // ✅ 댓글 작성 (루트)
     @PostMapping
-    public ResponseEntity<Comment> addComment(@PathVariable Long postId,
-                                              @RequestBody Comment comment,
-                                              HttpServletRequest req) {
+    public ResponseEntity<CommentResponse> addComment(
+            @PathVariable Long postId,
+            @Valid @RequestBody CommentRequest request,
+            HttpServletRequest req) {
+
         String ip = Optional.ofNullable(req.getHeader("X-Forwarded-For"))
                 .orElse(req.getRemoteAddr());
-        comment.setIpAddress(ip);
-        return ResponseEntity.ok(commentService.addComment(postId, comment));
+
+        Comment saved = commentService.addComment(postId, request.getAuthor(), request.getContent(), ip);
+        return ResponseEntity.ok(CommentResponse.from(saved));
     }
 
     // ✅ 대댓글 작성
     @PostMapping("/{parentId}/reply")
-    public ResponseEntity<Comment> addReply(@PathVariable Long postId,
-                                            @PathVariable Long parentId,
-                                            @RequestBody Comment reply,
-                                            HttpServletRequest req) {
+    public ResponseEntity<CommentResponse> addReply(@PathVariable Long postId,
+                                                    @PathVariable Long parentId,
+                                                    @Valid @RequestBody CommentRequest request,
+                                                    HttpServletRequest req) {
         String ip = Optional.ofNullable(req.getHeader("X-Forwarded-For"))
                 .orElse(req.getRemoteAddr());
-        reply.setIpAddress(ip);
-        return ResponseEntity.ok(commentService.addReply(postId, parentId, reply));
+
+        Comment saved = commentService.addReply(postId, parentId,
+                request.getAuthor(),
+                request.getContent(),
+                ip);
+
+        return ResponseEntity.ok(CommentResponse.from(saved));
     }
 
     // ✅ 댓글 삭제

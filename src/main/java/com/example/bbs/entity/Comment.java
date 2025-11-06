@@ -24,14 +24,18 @@ public class Comment {
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(length = 45)
+    private String ipAddress;
+
     // 기본 생성자
     public Comment() {}
 
     // 생성자
-    public Comment(Post post, String author, String content) {
+    public Comment(Post post, String author, String content, String ipAddress) {
         this.post = post;
         this.author = author;
         this.content = content;
+        this.ipAddress = ipAddress;
     }
 
     // Getter / Setter
@@ -46,4 +50,7 @@ public class Comment {
     public void setContent(String content) { this.content = content; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public String getIpAddress() { return ipAddress; }
+    public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
 }

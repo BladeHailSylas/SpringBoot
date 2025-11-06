@@ -2,6 +2,7 @@ package com.example.bbs.controller;
 
 import com.example.bbs.entity.Comment;
 import com.example.bbs.service.CommentService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -25,7 +26,17 @@ public class CommentController {
 
     // 댓글 추가
     @PostMapping
-    public ResponseEntity<Comment> addComment(@PathVariable Long postId, @RequestBody Comment comment) {
+    public ResponseEntity<Comment> addComment(@PathVariable Long postId,
+                                              @RequestBody Comment comment,
+                                              HttpServletRequest servletRequest) {
+        // ✅ 클라이언트 IP 추출
+        String clientIp = servletRequest.getHeader("X-Forwarded-For");
+        if (clientIp == null || clientIp.isEmpty()) {
+            clientIp = servletRequest.getRemoteAddr();
+        }
+
+        comment.setIpAddress(clientIp);
+
         Optional<Comment> saved = commentService.addComment(postId, comment);
         return saved.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());

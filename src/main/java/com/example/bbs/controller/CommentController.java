@@ -51,7 +51,7 @@ public class CommentController {
     }
 
     // ✅ 대댓글 작성
-    @PostMapping("/{parentId}/replies")
+    @PostMapping("/{parentId}/reply")
     public ResponseEntity<CommentResponse> addReply(@PathVariable Long postId,
                                                     @PathVariable Long parentId,
                                                     @Valid @RequestBody CommentRequest request,

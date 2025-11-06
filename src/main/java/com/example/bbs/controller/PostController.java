@@ -51,8 +51,18 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public Optional<Post> update(@PathVariable Long id, @RequestBody Post post) {
-        return postService.updatePost(id, post);
+    public ResponseEntity<?> updatePost(@PathVariable Long id, @Valid @RequestBody PostRequest request, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(err ->
+                    errors.put(err.getField(), err.getDefaultMessage())
+            );
+            return ResponseEntity.badRequest().body(errors);
+        }
+
+        return postService.updatePost(id, new Post(request.getTitle(), request.getContent(), request.getAuthor()))
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PatchMapping("/{id}/hide")

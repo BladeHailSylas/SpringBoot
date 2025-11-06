@@ -1,7 +1,7 @@
 package com.example.bbs.repository;
 
-import com.example.bbs.entity.TestEntity;
+import com.example.bbs.entity.Test;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TestRepository extends JpaRepository<TestEntity, Long> {
+public interface TestRepository extends JpaRepository<Test, Long> {
 }

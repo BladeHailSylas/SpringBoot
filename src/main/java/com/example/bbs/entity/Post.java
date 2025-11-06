@@ -29,7 +29,7 @@ public class Post {
     @Column(nullable = false)
     private final LocalDateTime createdAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    //@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Comment> comments = new ArrayList<>();
 
     // 기본 생성자

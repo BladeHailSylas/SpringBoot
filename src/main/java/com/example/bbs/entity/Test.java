@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "test_entity")
-public class TestEntity {
+public class Test {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,8 +13,8 @@ public class TestEntity {
     private String message;
 
     // 생성자
-    public TestEntity() {}
-    public TestEntity(String message) {
+    public Test() {}
+    public Test(String message) {
         this.message = message;
     }
 

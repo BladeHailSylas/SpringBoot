@@ -2,6 +2,8 @@ package com.example.bbs.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "comments")
@@ -13,7 +15,14 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
-    private Post post; // ✅ Post와 연결
+    private Post post;  // ✅ 어떤 게시글에 속한 댓글인지
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_comment_id")
+    private Comment parentComment;  // ✅ null이면 루트 댓글
+
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> replies = new ArrayList<>();
 
     @Column(nullable = false, length = 100)
     private String author;
@@ -27,10 +36,9 @@ public class Comment {
     @Column(length = 45)
     private String ipAddress;
 
-    // 기본 생성자
     public Comment() {}
 
-    // 생성자
+    // 일반 댓글 생성자
     public Comment(Post post, String author, String content, String ipAddress) {
         this.post = post;
         this.author = author;
@@ -38,19 +46,28 @@ public class Comment {
         this.ipAddress = ipAddress;
     }
 
-    // Getter / Setter
+    // 대댓글 생성자
+    public Comment(Post post, Comment parent, String author, String content, String ipAddress) {
+        this.post = post;
+        this.parentComment = parent;
+        this.author = author;
+        this.content = content;
+        this.ipAddress = ipAddress;
+    }
+
+    // Getter/Setter
     public Long getId() { return id; }
     public Post getPost() { return post; }
-    public void setPost(Post post) { this.post = post; }
-
+    public Comment getParentComment() { return parentComment; }
+    public List<Comment> getReplies() { return replies; }
     public String getAuthor() { return author; }
-    public void setAuthor(String author) { this.author = author; }
-
     public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
-
     public LocalDateTime getCreatedAt() { return createdAt; }
-
     public String getIpAddress() { return ipAddress; }
-    public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
+
+    public void setPost(Post post) { this.post = post; }
+    public void setParentComment(Comment parent) { this.parentComment = parent; }
+    public void setAuthor(String author) { this.author = author; }
+    public void setContent(String content) { this.content = content; }
+    public void setIpAddress(String ip) { this.ipAddress = ip; }
 }

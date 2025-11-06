@@ -18,35 +18,45 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    // 댓글 목록 조회
+    // ✅ 루트 댓글 목록
     @GetMapping
-    public List<Comment> getComments(@PathVariable Long postId) {
-        return commentService.getCommentsByPostId(postId);
+    public List<Comment> getRootComments(@PathVariable Long postId) {
+        return commentService.getRootComments(postId);
     }
 
-    // 댓글 추가
+    // ✅ 특정 댓글의 대댓글 목록
+    @GetMapping("/{parentId}/replies")
+    public List<Comment> getReplies(@PathVariable Long parentId) {
+        return commentService.getReplies(parentId);
+    }
+
+    // ✅ 댓글 작성 (루트)
     @PostMapping
     public ResponseEntity<Comment> addComment(@PathVariable Long postId,
                                               @RequestBody Comment comment,
-                                              HttpServletRequest servletRequest) {
-        // ✅ 클라이언트 IP 추출
-        String clientIp = servletRequest.getHeader("X-Forwarded-For");
-        if (clientIp == null || clientIp.isEmpty()) {
-            clientIp = servletRequest.getRemoteAddr();
-        }
-
-        comment.setIpAddress(clientIp);
-
-        Optional<Comment> saved = commentService.addComment(postId, comment);
-        return saved.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                                              HttpServletRequest req) {
+        String ip = Optional.ofNullable(req.getHeader("X-Forwarded-For"))
+                .orElse(req.getRemoteAddr());
+        comment.setIpAddress(ip);
+        return ResponseEntity.ok(commentService.addComment(postId, comment));
     }
 
-    // 댓글 삭제
+    // ✅ 대댓글 작성
+    @PostMapping("/{parentId}/reply")
+    public ResponseEntity<Comment> addReply(@PathVariable Long postId,
+                                            @PathVariable Long parentId,
+                                            @RequestBody Comment reply,
+                                            HttpServletRequest req) {
+        String ip = Optional.ofNullable(req.getHeader("X-Forwarded-For"))
+                .orElse(req.getRemoteAddr());
+        reply.setIpAddress(ip);
+        return ResponseEntity.ok(commentService.addReply(postId, parentId, reply));
+    }
+
+    // ✅ 댓글 삭제
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
-        boolean deleted = commentService.deleteComment(commentId);
-        return deleted ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+        commentService.deleteComment(commentId);
+        return ResponseEntity.noContent().build();
     }
 }

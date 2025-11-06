@@ -1,6 +1,6 @@
 package com.example.bbs.controller;
 
-import com.example.bbs.entity.TestEntity;
+import com.example.bbs.entity.Test;
 import com.example.bbs.repository.TestRepository;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,10 +19,10 @@ public class TestController {
     @GetMapping("/db-test")
     public String testConnection() {
         // 단순 DB insert → select → 반환
-        TestEntity entity = new TestEntity("DB 연결 성공!");
+        Test entity = new Test("DB 연결 성공!");
         testRepository.save(entity);
 
-        List<TestEntity> all = testRepository.findAll();
+        List<Test> all = testRepository.findAll();
         return "✅ DB 연결 성공! 현재 총 데이터 수: " + all.size();
     }
 }

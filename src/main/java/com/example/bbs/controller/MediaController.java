@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/media")
+@RequestMapping("/api")
 public class MediaController {
 
     private final MediaService mediaService;
@@ -23,7 +23,7 @@ public class MediaController {
         this.mediaService = mediaService;
     }
 
-    @PostMapping("/upload")
+    @PostMapping("/media")
     public ResponseEntity<String> uploadMedia(@RequestParam("file") MultipartFile file) throws IOException {
         String uploadDir = "uploads/media";
         Files.createDirectories(Path.of(uploadDir));
@@ -36,12 +36,12 @@ public class MediaController {
         return ResponseEntity.ok(fileUrl);
     }
 
-    @GetMapping
+    @GetMapping("/post/{postId}/media")
     public List<Media> getFiles(@PathVariable Long postId) {
         return mediaService.getFilesByPost(postId);
     }
 
-    @DeleteMapping("/{fileId}")
+    @DeleteMapping("/media/{fileId}")
     public ResponseEntity<Void> deleteFile(@PathVariable Long fileId) throws IOException {
         mediaService.deleteFile(fileId);
         return ResponseEntity.noContent().build();

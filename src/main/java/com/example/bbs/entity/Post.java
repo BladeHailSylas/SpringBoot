@@ -29,8 +29,12 @@ public class Post {
     @Column(nullable = false)
     private final LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(length = 45) // IPv6까지 고려
+    private String ipAddress;
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Comment> comments = new ArrayList<>();
+
 
     // 기본 생성자
     public Post() {}
@@ -57,4 +61,7 @@ public class Post {
     public void setHidden(boolean hidden) { this.hidden = hidden; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public String getIpAddress() { return ipAddress; }
+    public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
 }

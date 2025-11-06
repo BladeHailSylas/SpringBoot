@@ -2,6 +2,8 @@ package com.example.bbs.service;
 
 import com.example.bbs.entity.Post;
 import com.example.bbs.repository.PostRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -15,8 +17,8 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public List<Post> getAllVisiblePosts() {
-        return postRepository.findByHiddenFalse();
+    public Page<Post> getAllVisiblePosts(Pageable pageable) {
+        return postRepository.findByHiddenFalseOrderByIdDesc(pageable);
     }
 
     public Optional<Post> getPostById(Long id) {

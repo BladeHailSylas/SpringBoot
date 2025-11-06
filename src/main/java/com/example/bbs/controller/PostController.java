@@ -3,7 +3,12 @@ package com.example.bbs.controller;
 import com.example.bbs.dto.PostRequest;
 import com.example.bbs.entity.Post;
 import com.example.bbs.service.PostService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +29,10 @@ public class PostController {
     }
 
     @GetMapping
-    public List<Post> getAll() {
-        return postService.getAllVisiblePosts();
+    public Page<Post> getAll(@RequestParam(defaultValue = "0") int page,
+                             @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return postService.getAllVisiblePosts(pageable);
     }
 
     @GetMapping("/{id}")
@@ -34,18 +41,25 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPost(@Valid @RequestBody PostRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> createPost(@Valid @RequestBody PostRequest request,
+                                        BindingResult bindingResult,
+                                        HttpServletRequest servletRequest) {
         if (bindingResult.hasErrors()) {
-            // 검증 실패 시
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(err ->
-                    errors.put(err.getField(), err.getDefaultMessage())
-            );
+                    errors.put(err.getField(), err.getDefaultMessage()));
             return ResponseEntity.badRequest().body(errors);
         }
 
-        // 검증 통과 시
+        // ✅ IP 추출
+        String clientIp = servletRequest.getHeader("X-Forwarded-For");
+        if (clientIp == null || clientIp.isEmpty()) {
+            clientIp = servletRequest.getRemoteAddr();
+        }
+
         Post post = new Post(request.getTitle(), request.getContent(), request.getAuthor());
+        post.setIpAddress(clientIp); // 새 필드에 저장
+
         Post saved = postService.createPost(post);
         return ResponseEntity.ok(saved);
     }

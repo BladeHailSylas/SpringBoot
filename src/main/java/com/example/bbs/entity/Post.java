@@ -34,7 +34,6 @@ public class Post {
     private String ipAddress;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
     private final List<Comment> comments = new ArrayList<>();
 
 

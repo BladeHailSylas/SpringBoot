@@ -16,7 +16,6 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
-    @JsonBackReference
     private Post post;  // ✅ 어떤 게시글에 속한 댓글인지
 
     @ManyToOne(fetch = FetchType.LAZY)

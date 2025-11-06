@@ -33,7 +33,7 @@ public class Post {
     private String ipAddress;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<Comments> comments = new ArrayList<>();
+    private final List<Comment> comments = new ArrayList<>();
 
 
     // 기본 생성자

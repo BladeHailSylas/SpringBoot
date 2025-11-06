@@ -11,75 +11,39 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 200)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post; // ✅ Post와 연결
+
+    @Column(nullable = false, length = 100)
     private String author;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
-
-    @Column(nullable = false)
-    private boolean hidden = false;
 
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // 다대일 관계 설정: 여러 댓글이 하나의 게시글(Post)에 속함
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
-    private Post post;
-
-    // ✅ 기본 생성자 (JPA용)
+    // 기본 생성자
     public Comment() {}
 
-    // ✅ 사용자 정의 생성자
-    public Comment(String author, String content, Post post) {
+    // 생성자
+    public Comment(Post post, String author, String content) {
+        this.post = post;
         this.author = author;
         this.content = content;
-        this.post = post;
     }
 
-    // ✅ Getter & Setter
-    public Long getId() {
-        return id;
-    }
+    // Getter / Setter
+    public Long getId() { return id; }
+    public Post getPost() { return post; }
+    public void setPost(Post post) { this.post = post; }
 
-    public String getAuthor() {
-        return author;
-    }
+    public String getAuthor() { return author; }
+    public void setAuthor(String author) { this.author = author; }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
 
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public boolean isHidden() {
-        return hidden;
-    }
-
-    public void setHidden(boolean hidden) {
-        this.hidden = hidden;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Post getPost() {
-        return post;
-    }
-
-    public void setPost(Post post) {
-        this.post = post;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
 }

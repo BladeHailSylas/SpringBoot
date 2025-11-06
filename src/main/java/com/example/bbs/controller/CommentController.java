@@ -2,12 +2,13 @@ package com.example.bbs.controller;
 
 import com.example.bbs.entity.Comment;
 import com.example.bbs.service.CommentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/api/posts/{postId}/comments")
 public class CommentController {
 
     private final CommentService commentService;
@@ -16,20 +17,25 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @GetMapping("/post/{postId}")
-    public List<Comment> getByPost(@PathVariable Long postId) {
+    // 댓글 목록 조회
+    @GetMapping
+    public List<Comment> getComments(@PathVariable Long postId) {
         return commentService.getCommentsByPostId(postId);
     }
 
-    @PostMapping("/post/{postId}")
-    public Comment create(@PathVariable Long postId, @RequestBody Comment comment) {
-        return commentService.addComment(postId, comment);
+    // 댓글 추가
+    @PostMapping
+    public ResponseEntity<Comment> addComment(@PathVariable Long postId, @RequestBody Comment comment) {
+        Optional<Comment> saved = commentService.addComment(postId, comment);
+        return saved.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PatchMapping("/{id}/hide")
-    public String hide(@PathVariable Long id) {
-        return commentService.hideComment(id)
-                ? "✅ 댓글이 삭제되었습니다."
-                : "❌ 댓글을 찾을 수 없습니다.";
+    // 댓글 삭제
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
+        boolean deleted = commentService.deleteComment(commentId);
+        return deleted ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 }

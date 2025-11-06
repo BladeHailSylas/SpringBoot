@@ -5,11 +5,12 @@ import com.example.bbs.entity.Post;
 import com.example.bbs.repository.CommentRepository;
 import com.example.bbs.repository.PostRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CommentService {
+
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
 
@@ -19,22 +20,22 @@ public class CommentService {
     }
 
     public List<Comment> getCommentsByPostId(Long postId) {
-        return postRepository.findById(postId)
-                .map(commentRepository::findByPostAndHiddenFalse)
-                .orElse(List.of());
+        Optional<Post> post = postRepository.findById(postId);
+        return post.map(commentRepository::findByPostOrderByCreatedAtAsc).orElse(List.of());
     }
 
-    public Comment addComment(Long postId, Comment comment) {
-        Post post = postRepository.findById(postId).orElseThrow();
-        comment.setPost(post);
-        return commentRepository.save(comment);
+    public Optional<Comment> addComment(Long postId, Comment comment) {
+        return postRepository.findById(postId).map(post -> {
+            comment.setPost(post);
+            return commentRepository.save(comment);
+        });
     }
 
-    public boolean hideComment(Long id) {
-        return commentRepository.findById(id).map(c -> {
-            c.setHidden(true);
-            commentRepository.save(c);
+    public boolean deleteComment(Long id) {
+        if (commentRepository.existsById(id)) {
+            commentRepository.deleteById(id);
             return true;
-        }).orElse(false);
+        }
+        return false;
     }
 }

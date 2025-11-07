@@ -27,14 +27,16 @@ public class CommentResponse {
 
     // ✅ Comment → CommentResponse 변환 (재귀 포함)
     public static CommentResponse from(Comment comment) {
+        boolean hidden = comment.isHidden();
         return new CommentResponse(
                 comment.getId(),
-                comment.getAuthor(),
-                comment.getContent(),
+                hidden ? "익명" : comment.getAuthor(),
+                hidden ? "(삭제된 댓글입니다)" : comment.getContent(),
                 comment.getCreatedAt(),
-                comment.getIpAddress(),
+                hidden ? null : comment.getIpAddress(),
                 comment.getReplies() != null
                         ? comment.getReplies().stream()
+                        .filter(c -> !c.isHidden())
                         .map(CommentResponse::from)
                         .collect(Collectors.toList())
                         : List.of()

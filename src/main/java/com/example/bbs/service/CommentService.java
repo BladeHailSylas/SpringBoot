@@ -28,7 +28,7 @@ public class CommentService {
     // 특정 댓글의 대댓글 목록
     @Transactional
     public List<Comment> getReplies(Long parentId) {
-        return commentRepository.findVisibleReplies(parentId);
+        return commentRepository.findByParentCommentIdAndHiddenFalseOrderByCreatedAtAsc(parentId);
     }
 
     // 댓글 추가 (일반)

@@ -41,29 +41,24 @@ public class PostService {
      * 2️⃣ 본문에 포함된 temp 이미지 이동 및 DB 등록
      */
     @Transactional
-    public Post createPost(Post post) {
-        Post saved = postRepository.save(post);
-        try {
-            moveTempImagesToPost(saved);
-        } catch (IOException e) {
-            e.getStackTrace();
-        }
-        return saved;
-    }
-    @Transactional
     public Post createPost(PostRequest dto, String username) {
         Post post = new Post();
         post.setTitle(dto.getTitle());
         post.setContent(dto.getContent());
         post.setAuthor(username); // ✅ 로그인한 사용자명 저장
+        try {
+            moveTempImagesToPost(post);
+        } catch (IOException e) {
+            e.getStackTrace();
+        }
         return postRepository.save(post);
     }
 
-    public Optional<Post> updatePost(Long id, Post updated) {
+    public Optional<Post> updatePost(Long id, PostRequest dto, String username) {
         return postRepository.findById(id).map(post -> {
-            post.setTitle(updated.getTitle());
-            post.setContent(updated.getContent());
-            post.setAuthor(updated.getAuthor());
+            post.setTitle(dto.getTitle());
+            post.setContent(dto.getContent());
+            post.setAuthor(username); // ✅ 로그인 유저명으로 덮어쓰기
             return postRepository.save(post);
         });
     }

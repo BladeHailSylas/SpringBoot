@@ -75,7 +75,16 @@ public class PostController {
         return ResponseEntity.ok(Map.of("id", post.getId()));
     }
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePost(@PathVariable Long id, @Valid @RequestBody PostRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> updatePost(@AuthenticationPrincipal UserDetails user,
+                                        @PathVariable Long id,
+                                        @Valid @RequestBody PostRequest request,
+                                        BindingResult bindingResult) {
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "로그인이 필요합니다."));
+        }
+
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(err ->
@@ -84,10 +93,11 @@ public class PostController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        return postService.updatePost(id, new Post(request.getTitle(), request.getContent(), request.getAuthor()))
+        return postService.updatePost(id, request, user.getUsername())
                 .<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> hidePost(@PathVariable Long id) {
         boolean result = postService.hidePost(id);

@@ -4,7 +4,8 @@ spring:
 
   web:
     resources:
-      static-locations: file:uploads/
+      static-locations: file:/home/Serverman/SpringBoot/uploads/
+      add-mappings: true
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver

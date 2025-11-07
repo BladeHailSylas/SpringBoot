@@ -24,7 +24,7 @@ public class Comment {
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;  // ✅ null이면 루트 댓글
 
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.PERSIST)
     private List<Comment> replies = new ArrayList<>();
 
     @Column(nullable = false, length = 100)

@@ -60,7 +60,6 @@ public class CommentService {
         reply.setAuthor(author);
         reply.setContent(content);
         reply.setIpAddress(ipAddress);
-
         return commentRepository.save(reply);
     }
     @Transactional
@@ -69,6 +68,5 @@ public class CommentService {
             comment.setHidden(true);
             commentRepository.save(comment);
         });
-        System.out.println("Hidden updated in DB: " + commentRepository.findById(id).get().isHidden());
     }
 }

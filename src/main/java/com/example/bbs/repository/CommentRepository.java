@@ -11,6 +11,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByPostIdAndParentCommentIsNullOrderByCreatedAtAsc(Long postId);
 
     // 특정 댓글의 자식 댓글 조회
-    List<Comment> findByParentCommentIdAndOrderByCreatedAtAsc(Long parentId);
+    List<Comment> findByParentCommentIdOrderByCreatedAtAsc(Long parentId);
 
 }

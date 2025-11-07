@@ -10,7 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,7 +69,16 @@ public class PostController {
         Post saved = postService.createPost(post);
         return ResponseEntity.ok(saved);
     }
-
+    @PostMapping
+    public ResponseEntity<?> createPost(@AuthenticationPrincipal UserDetails user,
+                                        @RequestBody PostRequest dto) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "로그인이 필요합니다."));
+        }
+        Post post = postService.createPost(dto, user.getUsername()); // ✅ 작성자명 전달
+        return ResponseEntity.ok(Map.of("id", post.getId()));
+    }
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePost(@PathVariable Long id, @Valid @RequestBody PostRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {

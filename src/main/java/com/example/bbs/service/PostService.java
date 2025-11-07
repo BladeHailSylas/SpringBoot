@@ -1,5 +1,6 @@
 package com.example.bbs.service;
 
+import com.example.bbs.dto.PostRequest;
 import com.example.bbs.entity.Post;
 import com.example.bbs.entity.Media;
 import com.example.bbs.repository.PostRepository;
@@ -48,6 +49,14 @@ public class PostService {
             e.getStackTrace();
         }
         return saved;
+    }
+    @Transactional
+    public Post createPost(PostRequest dto, String username) {
+        Post post = new Post();
+        post.setTitle(dto.getTitle());
+        post.setContent(dto.getContent());
+        post.setAuthor(username); // ✅ 로그인한 사용자명 저장
+        return postRepository.save(post);
     }
 
     public Optional<Post> updatePost(Long id, Post updated) {

@@ -39,6 +39,12 @@ public class MediaController {
         return ResponseEntity.ok(new MediaResponse(saved));
     }
 
+    @PostMapping("/media/temp")
+    public ResponseEntity<MediaResponse> uploadTempMedia(@RequestParam("file") MultipartFile file) throws IOException {
+        Media saved = mediaService.saveTempFile(file);
+        return ResponseEntity.ok(new MediaResponse(saved));
+    }
+
     @GetMapping("/{postId}/media")
     public ResponseEntity<List<MediaResponse>> getFiles(@PathVariable Long postId) {
         List<MediaResponse> mediaList = mediaService.getFilesByPost(postId)

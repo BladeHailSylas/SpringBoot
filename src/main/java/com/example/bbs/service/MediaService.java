@@ -54,6 +54,23 @@ public class MediaService {
         return mediaRepository.save(media);
     }
 
+    @Transactional
+    public Media saveTempFile(MultipartFile file) throws IOException {
+        String uploadDir = "uploads/temp";
+        Files.createDirectories(Path.of(uploadDir));
+
+        String storedName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        Path filePath = Path.of(uploadDir, storedName);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        Media media = new Media();
+        media.setOriginalName(file.getOriginalFilename());
+        media.setStoredName(storedName);
+        media.setFilePath(filePath.toString());
+        media.setSize(file.getSize());
+        return media; // DB에 저장 안 함 (임시)
+    }
+
     /**
      * 게시글에 연결된 미디어 목록 조회
      */

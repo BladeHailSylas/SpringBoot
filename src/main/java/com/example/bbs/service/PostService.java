@@ -96,7 +96,7 @@ public class PostService {
                 media.setFilePath(moved.toString());
                 media.setSize(Files.size(moved));
                 mediaRepository.save(media);
-
+                post.getMedias().add(media);
                 // ✅ 게시글 본문 내 경로 수정
                 String newPath = "/uploads/" + post.getId() + "/" + tempFile.getFileName();
                 post.setContent(post.getContent().replace(tempPathStr, newPath));

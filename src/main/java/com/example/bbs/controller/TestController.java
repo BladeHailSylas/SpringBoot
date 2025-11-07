@@ -1,28 +1,16 @@
 package com.example.bbs.controller;
 
-import com.example.bbs.entity.Test;
-import com.example.bbs.repository.TestRepository;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/test")
 public class TestController {
 
-    private final TestRepository testRepository;
-
-    public TestController(TestRepository testRepository) {
-        this.testRepository = testRepository;
-    }
-
-    @GetMapping("/db-test")
-    public String testConnection() {
-        // 단순 DB insert → select → 반환
-        Test entity = new Test("DB 연결 성공!");
-        testRepository.save(entity);
-
-        List<Test> all = testRepository.findAll();
-        return "✅ DB 연결 성공! 현재 총 데이터 수: " + all.size();
+    @GetMapping("/me")
+    public String currentUser(@AuthenticationPrincipal UserDetails user) {
+        if (user == null) return "인증되지 않은 사용자";
+        return "현재 로그인한 사용자: " + user.getUsername();
     }
 }

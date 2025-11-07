@@ -20,12 +20,12 @@ public class CommentService {
 
     // 루트 댓글 목록
     public List<Comment> getRootComments(Long postId) {
-        return commentRepository.findByPostIdAndParentCommentIsNullOrderByCreatedAtAsc(postId);
+        return commentRepository.findByPostIdAndParentCommentIsNullAndHiddenFalseOrderByCreatedAtAsc(postId);
     }
 
     // 특정 댓글의 대댓글 목록
     public List<Comment> getReplies(Long parentId) {
-        return commentRepository.findByParentCommentIdOrderByCreatedAtAsc(parentId);
+        return commentRepository.findByParentCommentIdAndHiddenFalseOrderByCreatedAtAsc(parentId);
     }
 
     // 댓글 추가 (일반)
@@ -60,7 +60,10 @@ public class CommentService {
     }
 
     public void deleteComment(Long id) {
-        commentRepository.deleteById(id);
+        commentRepository.findById(id).ifPresent(comment -> {
+            comment.setHidden(true);
+            commentRepository.save(comment);
+        });
     }
 
 }

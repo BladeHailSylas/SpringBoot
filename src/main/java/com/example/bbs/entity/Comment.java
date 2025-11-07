@@ -13,6 +13,9 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private boolean hidden = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;  // ✅ 어떤 게시글에 속한 댓글인지
@@ -64,10 +67,12 @@ public class Comment {
     public String getContent() { return content; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public String getIpAddress() { return ipAddress; }
+    public boolean isHidden() { return hidden; }
 
     public void setPost(Post post) { this.post = post; }
     public void setParentComment(Comment parent) { this.parentComment = parent; }
     public void setAuthor(String author) { this.author = author; }
     public void setContent(String content) { this.content = content; }
     public void setIpAddress(String ip) { this.ipAddress = ip; }
+    public void setHidden(boolean hidden) { this.hidden = hidden; }
 }

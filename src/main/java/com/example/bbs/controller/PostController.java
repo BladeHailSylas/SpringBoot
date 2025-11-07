@@ -1,6 +1,7 @@
 package com.example.bbs.controller;
 
 import com.example.bbs.dto.PostRequest;
+import com.example.bbs.dto.PostResponse;
 import com.example.bbs.entity.Post;
 import com.example.bbs.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,9 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -29,15 +28,19 @@ public class PostController {
     }
 
     @GetMapping
-    public Page<Post> getAll(@RequestParam(defaultValue = "0") int page,
-                             @RequestParam(defaultValue = "10") int size) {
+    public Page<PostResponse> getAll(@RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return postService.getAllVisiblePosts(pageable);
+        Page<Post> posts = postService.getAllVisiblePosts(pageable);
+        return posts.map(PostResponse::new);
     }
 
     @GetMapping("/{id}")
-    public Optional<Post> getById(@PathVariable Long id) {
-        return postService.getPostById(id);
+    public ResponseEntity<PostResponse> getById(@PathVariable Long id) {
+        return postService.getPostById(id)
+                .map(PostResponse::new)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping

@@ -1,5 +1,7 @@
 package com.example.bbs.controller;
 
+import com.example.bbs.dto.MediaRequest;
+import com.example.bbs.dto.MediaResponse;
 import com.example.bbs.entity.Media;
 import com.example.bbs.service.MediaService;
 import org.springframework.http.ResponseEntity;
@@ -7,14 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/posts")
 public class MediaController {
 
     private final MediaService mediaService;
@@ -23,24 +21,36 @@ public class MediaController {
         this.mediaService = mediaService;
     }
 
-    @PostMapping("/media")
-    public ResponseEntity<String> uploadMedia(@RequestParam("file") MultipartFile file) throws IOException {
-        String uploadDir = "uploads/media";
-        Files.createDirectories(Path.of(uploadDir));
+    /**
+     * 특정 게시글에 미디어 업로드
+     * 실제 파일은 uploads/{postId}/ 에 저장되고,
+     * DB에는 Media 엔티티로 저장됩니다.
+     */
+    @PostMapping("/{postId}/media")
+    public ResponseEntity<MediaResponse> uploadMedia(
+            @PathVariable Long postId,
+            @RequestPart("file") MultipartFile file,
+            @RequestPart(value = "description", required = false) String description,
+            @RequestPart(value = "thumbnail", required = false) Boolean thumbnail) throws IOException {
 
-        String storedName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        Path filePath = Path.of(uploadDir, storedName);
-        java.nio.file.Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        String fileUrl = "/uploads/media/" + storedName; // 정적 리소스 경로
-        return ResponseEntity.ok(fileUrl);
+        // DTO 생성 후 Service로 전달
+        MediaRequest request = new MediaRequest(file, description, thumbnail != null && thumbnail);
+        Media saved = mediaService.saveFile(postId, request);
+        return ResponseEntity.ok(new MediaResponse(saved));
     }
 
-    @GetMapping("/post/{postId}/media")
-    public List<Media> getFiles(@PathVariable Long postId) {
-        return mediaService.getFilesByPost(postId);
+    @GetMapping("/{postId}/media")
+    public ResponseEntity<List<MediaResponse>> getFiles(@PathVariable Long postId) {
+        List<MediaResponse> mediaList = mediaService.getFilesByPost(postId)
+                .stream()
+                .map(MediaResponse::new)
+                .toList();
+        return ResponseEntity.ok(mediaList);
     }
 
+    /**
+     * 파일 삭제
+     */
     @DeleteMapping("/media/{fileId}")
     public ResponseEntity<Void> deleteFile(@PathVariable Long fileId) throws IOException {
         mediaService.deleteFile(fileId);

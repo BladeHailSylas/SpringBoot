@@ -27,6 +27,12 @@ public class Media {
     @Column(nullable = false)
     private LocalDateTime uploadedAt = LocalDateTime.now();
 
+    @Column(length = 255)
+    private String description;
+
+    @Column(nullable = false)
+    private boolean thumbnail = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
@@ -35,12 +41,15 @@ public class Media {
     public Media() {}
 
     // 생성자
-    public Media(Post post, String originalName, String storedName, String filePath, long size) {
+    public Media(Post post, String originalName, String storedName,
+                 String filePath, long size, String description, boolean thumbnail) {
         this.post = post;
         this.originalName = originalName;
         this.storedName = storedName;
         this.filePath = filePath;
         this.size = size;
+        this.description = description;
+        this.thumbnail = thumbnail;
     }
 
 
@@ -52,6 +61,8 @@ public class Media {
     public long getSize() { return size; }
     public LocalDateTime getUploadedAt() { return uploadedAt; }
     public Post getPost() { return post; }
+    public String getDescription() { return description; }
+    public boolean isThumbnail() { return thumbnail; }
 
     public void setPost(Post post) { this.post = post; }
     public void setOriginalName(String originalName) { this.originalName = originalName; }

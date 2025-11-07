@@ -1,10 +1,12 @@
 package com.example.bbs.service;
 
+import com.example.bbs.dto.MediaRequest;
 import com.example.bbs.entity.Post;
 import com.example.bbs.entity.Media;
 import com.example.bbs.repository.PostRepository;
 import com.example.bbs.repository.MediaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -23,7 +25,13 @@ public class MediaService {
         this.postRepository = postRepository;
     }
 
-    public Media saveFile(Long postId, MultipartFile file) throws IOException {
+    /**
+     * 파일 저장 및 DB 기록
+     */
+    @Transactional
+    public Media saveFile(Long postId, MediaRequest request) throws IOException {
+        MultipartFile file = request.getFile();
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
@@ -32,27 +40,43 @@ public class MediaService {
 
         String storedName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path filePath = Path.of(uploadDir, storedName);
-        java.nio.file.Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        Media entity = new Media();
-        entity.setPost(post);
-        entity.setOriginalName(file.getOriginalFilename());
-        entity.setStoredName(storedName);
-        entity.setFilePath(filePath.toString());
-        entity.setSize(file.getSize());
-        return mediaRepository.save(entity);
+        Media media = new Media(
+                post,
+                file.getOriginalFilename(),
+                storedName,
+                filePath.toString(),
+                file.getSize(),
+                request.getDescription(),
+                request.isThumbnail()
+        );
+        return mediaRepository.save(media);
     }
 
+    /**
+     * 게시글에 연결된 미디어 목록 조회
+     */
+    @Transactional(readOnly = true)
     public List<Media> getFilesByPost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
         return mediaRepository.findByPost(post);
     }
 
+    /**
+     * 파일 삭제 및 DB 정리
+     */
+    @Transactional
     public void deleteFile(Long fileId) throws IOException {
         Media file = mediaRepository.findById(fileId)
                 .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다."));
-        java.nio.file.Files.deleteIfExists(Path.of(file.getFilePath()));
+
+        // 파일 존재 시 삭제
+        Path path = Path.of(file.getFilePath());
+        Files.deleteIfExists(path);
+
+        // DB에서도 삭제
         mediaRepository.delete(file);
     }
 }

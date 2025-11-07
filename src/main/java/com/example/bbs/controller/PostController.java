@@ -47,9 +47,15 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPost(@Valid @RequestBody PostRequest request,
+    public ResponseEntity<?> createPost(@AuthenticationPrincipal UserDetails user,
+                                        @Valid @RequestBody PostRequest dto,
                                         BindingResult bindingResult,
                                         HttpServletRequest servletRequest) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "로그인이 필요합니다."));
+        }
+
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(err ->
@@ -57,26 +63,15 @@ public class PostController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        // ✅ IP 추출
+        // IP 주소 추출 (선택 사항)
         String clientIp = servletRequest.getHeader("X-Forwarded-For");
         if (clientIp == null || clientIp.isEmpty()) {
             clientIp = servletRequest.getRemoteAddr();
         }
 
-        Post post = new Post(request.getTitle(), request.getContent(), request.getAuthor());
-        post.setIpAddress(clientIp); // 새 필드에 저장
+        Post post = postService.createPost(dto, user.getUsername());
+        post.setIpAddress(clientIp);
 
-        Post saved = postService.createPost(post);
-        return ResponseEntity.ok(saved);
-    }
-    @PostMapping
-    public ResponseEntity<?> createPost(@AuthenticationPrincipal UserDetails user,
-                                        @RequestBody PostRequest dto) {
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "로그인이 필요합니다."));
-        }
-        Post post = postService.createPost(dto, user.getUsername()); // ✅ 작성자명 전달
         return ResponseEntity.ok(Map.of("id", post.getId()));
     }
     @PutMapping("/{id}")

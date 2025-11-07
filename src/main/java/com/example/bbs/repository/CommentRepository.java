@@ -8,9 +8,9 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 루트 댓글만 (parentComment == null)
-    List<Comment> findByPostIdAndParentCommentIsNullAndHiddenFalseOrderByCreatedAtAsc(Long postId);
+    List<Comment> findByPostIdAndParentCommentIsNullOrderByCreatedAtAsc(Long postId);
 
     // 특정 댓글의 자식 댓글 조회
-    List<Comment> findByParentCommentIdAndHiddenFalseOrderByCreatedAtAsc(Long parentId);
+    List<Comment> findByParentCommentIdAndOrderByCreatedAtAsc(Long parentId);
 
 }
